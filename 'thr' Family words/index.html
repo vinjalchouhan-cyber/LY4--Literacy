@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thr Family Words Game</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f0f9ff;
+  margin: 0;
+}
+
+.container {
+  padding: 20px;
+}
+
+h1 {
+  color: #ff6b6b;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 350px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.option {
+  display: block;
+  margin: 12px auto;
+  padding: 14px;
+  width: 80%;
+  font-size: 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #eee;
+}
+
+.correct {
+  background: #4CAF50 !important;
+  color: white;
+}
+
+.wrong {
+  background: #f44336 !important;
+  color: white;
+}
+
+.animate {
+  animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.2);}
+  100% {transform: scale(1);}
+}
+
+#restart {
+  margin-top: 20px;
+  background: #2196F3;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+}
+
+#result {
+  font-size: 22px;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Find the 'thr' Word</h1>
+
+  <div class="card" id="gameCard">
+    <button class="option" id="opt1" onclick="checkAnswer(0)"></button>
+    <button class="option" id="opt2" onclick="checkAnswer(1)"></button>
+  </div>
+
+  <div id="result"></div>
+
+  <button id="restart" onclick="restartGame()">Restart</button>
+</div>
+
+<script>
+const questions = [
+  {options:["three","tree"], answer:0},
+  {options:["throw","grow"], answer:0},
+  {options:["thread","bread"], answer:0},
+  {options:["throne","stone"], answer:0},
+  {options:["thrill","drill"], answer:0},
+  {options:["through","blue"], answer:0},
+  {options:["thrush","brush"], answer:0}
+];
+
+let index = 0;
+let score = 0;
+
+function loadQuestion() {
+  if(index >= questions.length) {
+    showResult();
+    return;
+  }
+
+  document.getElementById("opt1").innerText = questions[index].options[0];
+  document.getElementById("opt2").innerText = questions[index].options[1];
+
+  resetButtons();
+}
+
+function resetButtons() {
+  let btns = document.querySelectorAll(".option");
+  btns.forEach(btn => {
+    btn.classList.remove("correct","wrong");
+  });
+}
+
+function speak(text, pitch=1.4) {
+  let msg = new SpeechSynthesisUtterance(text);
+  msg.pitch = pitch;
+  msg.rate = 1;
+  msg.lang = "en-US";
+  speechSynthesis.speak(msg);
+}
+
+function checkAnswer(choice) {
+  let correct = questions[index].answer;
+  let btns = document.querySelectorAll(".option");
+
+  if(choice === correct) {
+    btns[choice].classList.add("correct");
+    btns[choice].innerText += " ✔";
+    speak(["Superb!","Good job!"][Math.floor(Math.random()*2)],1.5);
+    score++;
+  } else {
+    btns[choice].classList.add("wrong");
+    btns[choice].innerText += " ✖";
+    btns[correct].classList.add("correct");
+    btns[correct].innerText += " ✔";
+    speak("Oh no...",0.6);
+  }
+
+  document.getElementById("gameCard").classList.add("animate");
+
+  setTimeout(() => {
+    document.getElementById("gameCard").classList.remove("animate");
+    index++;
+    loadQuestion();
+  }, 1400);
+}
+
+function showResult() {
+  document.getElementById("gameCard").style.display = "none";
+  document.getElementById("result").innerHTML =
+    "🎉 Your Score: " + score + " / " + questions.length;
+
+  speak("Congratulations! You did great!",1.5);
+}
+
+function restartGame() {
+  index = 0;
+  score = 0;
+  document.getElementById("gameCard").style.display = "block";
+  document.getElementById("result").innerHTML = "";
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
